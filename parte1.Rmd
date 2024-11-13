@@ -122,7 +122,11 @@ df <- as.data.frame(lapply(df, as.factor))
 
 ```{r}
 
+# primer algoritmo, apriori
 
+reglas <- apriori(df, parameter=list(support=0.1, confidence=0.65))
+x <- as(reglas, 'data.frame')
+x[grepl("(?=departamento=17)", x$rules, perl=TRUE),]
 ```
 
 ```{r}
