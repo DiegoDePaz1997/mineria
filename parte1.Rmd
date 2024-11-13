@@ -79,11 +79,30 @@ leer_excel <- function(nombre, columnas){
 ```
 
 ```{r}
+# se unen los dataframes
+df <- rbind(
+      leer_excel('base20.xlsx', columnas20),
+      leer_excel('base19.xlsx', columnas_ant),
+      leer_excel('base17.xlsx', columnas_ant))
 
+
+# se eliminan las filas que contengan ML Y M, son menos de 20
+df <- df[, !(names(df) %in% c('universo_nest',
+                              'muestra_n','expansor', 'segmento'))]
+df <- df[!apply(df == 'ML' | df == 'M', 1, any),]
+
+df$etapa <- as.numeric(df$etapa)
 ```
 
 ```{r}
+# filtrar los valores extremos
+df = df[df$maiz_c < 3*sd(df$maiz_c)
+   &
+   df$frijol_c < 3*sd(df$frijol_c)
+   &
+   df$arroz_c < 3*sd(df$arroz_c),]
 
+df_kmeans = data.frame(df)
 ```
 
 ```{r}
