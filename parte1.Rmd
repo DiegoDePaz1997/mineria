@@ -1,0 +1,113 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# se requiere la instalacion de java
+library(arules)
+library(Matrix)
+library(readxl)
+library(tibble)
+library(ggplot2)
+```
+
+```{r}
+# en el ultimo año se añadieron nuevas carácteristicas, para
+# usar la mayor cantidad de datos estos se omitieron
+
+columnas20 = list(
+              c('departamento', 'numeric'),	
+              c('municipio', 'numeric'),	
+              c('estrato', 'text'),	
+              c('zona',	'text'),	
+              c('etapa', 'text'),	
+              c('segmento', 'text'),	
+              c('polig', 'text'),	
+              c('universo_nest', 'numeric'),	
+              c('universo_nzo', 'numeric'),	
+              c('muestra_nzo', 'numeric'),	
+              c('muestra_n', 'numeric'),	
+              c('expansor', 'numeric'),	
+              c('maiz_c', 'numeric'),	
+              c('frijol_c',	'numeric'),	
+              c('arroz_c', 'numeric'),	
+              c('otros_usos', 'numeric'),	
+              c('maiz_p', 'numeric'),	
+              c('frijol_p', 'numeric'),	
+              c('arroz_p', 'numeric'))
+  
+
+columnas_ant = list(
+              c('departamento', 'numeric'),	
+              c('municipio', 'numeric'),	
+              c('estrato', 'text'),	
+              c('etapa', 'text'),	
+              c('segmento', 'text'),	
+              c('universo_nest', 'numeric'),	
+              c('muestra_n', 'numeric'),	
+              c('expansor', 'numeric'),	
+              c('maiz_c', 'numeric'),	
+              c('frijol_c',	'numeric'),	
+              c('arroz_c', 'numeric'),	
+              c('otros_usos', 'numeric'),	
+              c('maiz_p', 'numeric'),	
+              c('frijol_p', 'numeric'),	
+              c('arroz_p', 'numeric'))
+
+
+# se toman las columnas comunes a ambos conjuntos
+sel_columnas = intersect(
+        sapply(columnas20, function(l) l[1]),
+        sapply(columnas_ant, function(l) l[1]))
+
+
+# funcion para leer los datos y colocar los tipos de datos
+leer_excel <- function(nombre, columnas){
+  path <- paste('.\\', nombre, sep='')
+  
+  df <- read_xlsx(
+        path=path,
+        skip=6,
+        col_names=sapply(columnas, function(lista) lista[1]),
+        col_types=sapply(columnas, function(lista) lista[2])
+        )
+  return(df[, (names(df) %in% sel_columnas)])
+ }
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
