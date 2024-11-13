@@ -107,7 +107,17 @@ df_kmeans = data.frame(df)
 
 ```{r}
 
+# se discretizan los datos de las areas con el metodo de cluster
+df$maiz_c = discretize(df$maiz_c, method='cluster', breaks=12)
+df$frijol_c = discretize(df$frijol_c, method='cluster', breaks=12)
+df$arroz_c = discretize(df$arroz_c, method='cluster', breaks=6)
+df$otros_usos = discretize(df$otros_usos, method='cluster', breaks=12)
 
+df$maiz_p = discretize(df$maiz_p, method='cluster', breaks=12)
+df$frijol_p = discretize(df$frijol_p, method='cluster', breaks=12)
+df$arroz_p = discretize(df$arroz_p, method='cluster', breaks=6)
+
+df <- as.data.frame(lapply(df, as.factor))
 ```
 
 ```{r}
