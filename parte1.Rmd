@@ -138,13 +138,57 @@ xy
 ```
 
 ```{r}
+# tercer algoritmo kmeans  
 
+
+# se elige cuantos grupos se va a utilizar
+
+# se escalan los valores
+dd <- df_kmeans[, !(names(df_kmeans) %in% c('estrato','departamento','municipio'))]
+
+dd[, names(dd) %in% c('frijol_p', 'frijol_c', 'maiz_p','maiz_c', 'arroz_p', 'arroz_c','otros_usos')] <- scale(dd[, names(dd) %in% c('frijol_p','frijol_c',                             'maiz_p','maiz_c', 'arroz_p', 'arroz_c','otros_usos')])
+
+# cantidad de grupos
+n <- 15
+
+# inicializa el error
+wss <- numeric(10)
+
+
+# iterar incrementando los grupos
+for (i in 1:n) {
+  # entrena el modelo en: km.out
+  salida <- kmeans(dd, centers = i, nstart = 10)
+  # guarda la suma de cuadrados en wss
+  wss[i] <- salida$tot.withinss
+}
+
+# plotea la suma de cuadrados
+wss_df <- tibble(clusters = 1:n, wss = wss)
+
+
+scree_plot <- ggplot(wss_df, aes(x = clusters, y = wss, group = 1)) +
+    geom_point(size = 4)+
+    geom_line() +
+    scale_x_continuous(breaks = c(2, 4, 6, 8, 10)) +
+    xlab('numero de cluester')
+scree_plot
+
+salida = kmeans(dd, centers=4, nstart=20)
+dd$clase <- factor(salida$cluster)
 ```
 
 ```{r}
+ggplot(dd, aes(x=frijol_c, y=maiz_c, color=clase)) +
+  geom_point(alpha=.8) 
 
+dd
 ```
 
 ```{r}
+ggplot(dd, aes(x=otros_usos, y=etapa, color=clase)) +
+  geom_point(alpha=.5) 
 
+ 
+dd
 ```
