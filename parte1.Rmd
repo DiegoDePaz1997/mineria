@@ -130,7 +130,11 @@ x[grepl("(?=departamento=17)", x$rules, perl=TRUE),]
 ```
 
 ```{r}
+# segundo algoritmo fpgrowth
 
+reglas <- fim4r(df, method='fpgrowth', target='rules', supp=.2, conf=.6)
+xy <- as(reglas, 'data.frame')
+xy
 ```
 
 ```{r}
