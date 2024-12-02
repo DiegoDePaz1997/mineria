@@ -4,17 +4,15 @@ output: html_notebook
 ---
 
 ```{r}
-install.packages("caret") # para one hot encoder
-```
-
-```{r}
 # se requiere la instalacion de java
 library(caret)
 library(arules)
 library(Matrix)
 library(readxl)
 library(tibble)
-library(ggplot2)
+library(rpart)
+library(rpart.plot)
+
 ```
 
 ```{r}
@@ -103,17 +101,124 @@ df
 ```
 
 ```{r}
+arbol <- rpart(departamento ~ 
+                 municipio + 
+                 estrato + 
+                 etapa + 
+                 maiz_c + 
+                 frijol_c +
+                 arroz_c + 
+                 otros_usos + 
+                 maiz_p + 
+                 frijol_p + 
+                 arroz_p,
+          
+               data=df, 
+               method='class')
+```
 
+```{r}
+# predicción del departamento
+rpart.plot(arbol, 
+           type=2, 
+           extra=0, 
+           under=TRUE, 
+           fallen.leaves=TRUE, 
+           box.palette='BuGn', 
+           main='Prediccion del departamento', 
+           cex=.45)
+```
+
+```{r}
+arbol <- rpart(estrato ~ 
+                 municipio + 
+                 departamento + 
+                 etapa + 
+                 maiz_c + 
+                 frijol_c +
+                 arroz_c + 
+                 otros_usos + 
+                 maiz_p + 
+                 frijol_p + 
+                 arroz_p,
+          
+               data=df, 
+               method='class')
+```
+
+```{r}
+# predicción del estrato
+rpart.plot(arbol, 
+           type=2, 
+           extra=0, 
+           under=TRUE, 
+           fallen.leaves=TRUE, 
+           box.palette='BuGn', 
+           main='Prediccion del estrato', 
+           cex=.45)
+```
+
+```{r}
+arbol <- rpart(etapa ~ 
+                 municipio + 
+                 departamento + 
+                 estrato + 
+                 maiz_c + 
+                 frijol_c +
+                 arroz_c + 
+                 otros_usos + 
+                 maiz_p + 
+                 frijol_p + 
+                 arroz_p,
+          
+               data=df, 
+               method='class')
+```
+
+```{r}
+rpart.plot(arbol, 
+           type=2, 
+           extra=0, 
+           under=TRUE, 
+           fallen.leaves=TRUE, 
+           box.palette='BuGn', 
+           main='Prediccion de la etapa', 
+           cex=.45)
+```
+
+```{r}
+df_otros = data.frame(df)
+df_otros$otros_usos = discretize(df$otros_usos, method='cluster', breaks=3)
+
+arbol <- rpart(otros_usos ~ 
+                 municipio + 
+                 departamento + 
+                 estrato + 
+                 maiz_c + 
+                 frijol_c +
+                 arroz_c + 
+                 etapa + 
+                 maiz_p + 
+                 frijol_p + 
+                 arroz_p,
+          
+               data=df_otros, 
+               method='class')
+```
+
+```{r}
+rpart.plot(arbol, 
+           type=2, 
+           extra=0, 
+           under=TRUE, 
+           fallen.leaves=TRUE, 
+           box.palette='BuGn', 
+           main='Prediccion de la etapa', 
+           cex=.45)
 ```
 
 ```{r}
 
 ```
 
-```{r}
-
-```
-
-```{r}
-
-```
+![](images/clipboard-9133593.png)
