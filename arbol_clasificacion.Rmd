@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "R Notebook"
 output: html_notebook
@@ -37,3 +38,44 @@ casa <- data.frame(PCV1=c(1), PCV2=c(5), PCV3=c(2), PCV4=c(1), PCV5=c(1))
 predict(arbol, casa, type='class')
 
 ```
+=======
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(rpart)
+library(rpart.plot)
+```
+
+```{r}
+data = read.csv('C:/Users/diego/Documents/mineria de datos/db_csv/VIVIENDA_BDP.csv', sep=',')
+names(data)
+```
+
+```{r}
+data
+```
+
+```{r}
+
+# variable a predecir AREA    variables predictoras PCV_n
+arbol <- rpart(DEPARTAMENTO ~PCV1+PCV2+PCV3+PCV4+PCV5, 
+               data=data, 
+               method='class')
+
+```
+
+```{r}
+rpart.plot(arbol, type=2, extra=0, under=TRUE, fallen.leaves=TRUE, box.palette='BuGn', main='Prediccion del departamento', cex=.45)
+```
+
+```{r}
+
+casa <- data.frame(PCV1=c(1), PCV2=c(5), PCV3=c(2), PCV4=c(1), PCV5=c(1))
+
+predict(arbol, casa, type='class')
+
+```
+>>>>>>> 350d0257a3659c9e9ce705a87fa52de79e277cf5

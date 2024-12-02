@@ -1,0 +1,55 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+
+```
+
+```{r}
+data = read.csv('C:/Users/diego/Documents/mineria de datos/db_csv/MIGRACION_BDP.csv', sep=',')
+names(data)
+
+# Descripción del bosque realizado y explique el mismo.
+# Enlace de su repositorio de Github del código fuente donde se observe la
+# implementación del bosque aleatorio.
+```
+
+```{r}
+data
+```
+
+```{r}
+data$DEPARTAMENTO = as.factor(data$DEPARTAMENTO)
+set.seed(10)
+data = data[sample(1: nrow(data)), ]
+```
+
+```{r}
+indice = sample(1:nrow(data), .8*nrow(data))
+train = data[indice, ]
+test = data[-indice,]
+```
+
+```{r}
+bosque = randomForest(DEPARTAMENTO ~ PEI3 + AREA + PEI4 + PEI5 + MUNICIPIO + ID_EMIGRACION + ZONA, 
+                      data=train,
+                      ntree = 100,
+                      mtry = 5)
+```
+
+```{r}
+entreno = predict(bosque, test)
+```
+
+```{r}
+'''
+El Random Forest seleccionará las variables más relevantes para predecir DEPARTAMENTO al analizar patrones y combinaciones entre estas características. Las variables como ZONA y AREA probablemente sean las más importantes, ya que están más directamente relacionadas con la localización geográfica. Variables como PEI3, PEI4 y PEI5 también pueden aportar información adicional dependiendo de los patrones específicos de emigración en cada departamento.
+
+'''
+
+```
