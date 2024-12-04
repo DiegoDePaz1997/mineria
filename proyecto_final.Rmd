@@ -12,12 +12,13 @@ library(readxl)
 library(tibble)
 library(rpart)
 library(rpart.plot)
+library(randomForest)
 
 ```
 
 ```{r}
-# en el ultimo año se añadieron nuevas carácteristicas, para
-# usar la mayor cantidad de datos estos se omitieron
+# en los datasets, el ultimo año se añadieron nuevas carácteristicas, 3 nuevas caracteristicas
+# se omitieron por solo en el ultimo dataset 
 
 columnas20 = list(
               c('departamento', 'numeric'),	
@@ -97,11 +98,14 @@ df$etapa <- as.numeric(df$etapa)
 ```
 
 ```{r}
-df
+# arboles de decision
 ```
 
 ```{r}
-arbol <- rpart(departamento ~ 
+# arbol de prediccion de produccion de frijol
+df_frif = data.frame(df)
+df_frif$frijol_p = discretize(df_frif$frijol_p, method='cluster', breaks=5)
+arbol_frif <- rpart( frijol_p~ 
                  municipio + 
                  estrato + 
                  etapa + 
@@ -110,16 +114,16 @@ arbol <- rpart(departamento ~
                  arroz_c + 
                  otros_usos + 
                  maiz_p + 
-                 frijol_p + 
+                 departamento + 
                  arroz_p,
           
-               data=df, 
+               data=df_frif, 
                method='class')
 ```
 
 ```{r}
 # predicción del departamento
-rpart.plot(arbol, 
+rpart.plot(arbol_frif, 
            type=2, 
            extra=0, 
            under=TRUE, 
@@ -130,7 +134,8 @@ rpart.plot(arbol,
 ```
 
 ```{r}
-arbol <- rpart(estrato ~ 
+# arbol de prediccion de estrato
+arbol_estrato <- rpart(estrato ~ 
                  municipio + 
                  departamento + 
                  etapa + 
@@ -148,7 +153,7 @@ arbol <- rpart(estrato ~
 
 ```{r}
 # predicción del estrato
-rpart.plot(arbol, 
+rpart.plot(arbol_estrato, 
            type=2, 
            extra=0, 
            under=TRUE, 
@@ -159,6 +164,7 @@ rpart.plot(arbol,
 ```
 
 ```{r}
+# arbol de prediccion de etapa
 arbol <- rpart(etapa ~ 
                  municipio + 
                  departamento + 
@@ -187,38 +193,197 @@ rpart.plot(arbol,
 ```
 
 ```{r}
-df_otros = data.frame(df)
-df_otros$otros_usos = discretize(df$otros_usos, method='cluster', breaks=3)
+# predicciones con los arboles de decision
+```
 
-arbol <- rpart(otros_usos ~ 
+```{r}
+# de FP-Growth
+# {departamento=17,frijol_c=[0,0.0782),arroz_c=[0,0.0647)} => {frijol_p=[0,1.94)}
+pred <- data.frame(#frijol_p=c(1), 
+                   municipio=c(5), 
+                   estrato=c('A'), 
+                   etapa=c(1), 
+                   maiz_c=c(0),
+                   frijol_c=c(0),
+                   arroz_c=c(1),
+                   otros_usos=c(1),
+                   maiz_p=c(1),
+                   departamento=c(17),
+                   arroz_p=c(1)
+                   )
+
+predict(arbol_frif, pred, type='class')
+```
+
+```{r}
+# de FP-Growth
+# 	{frijol_c=[0,0.0782),arroz_c=[0,0.0647),otros_usos=[91.1,144),arroz_p=[0,1.52)} => {estrato=D}	
+
+pred <- data.frame(frijol_p=c(1), 
+                   municipio=c(5), 
+                   #estrato=c('A'), 
+                   etapa=c(1), 
+                   maiz_c=c(0),
+                   frijol_c=c(0),
+                   arroz_c=c(1),
+                   otros_usos=c(100),
+                   maiz_p=c(1),
+                   departamento=c(17),
+                   arroz_p=c(1)
+                   )
+
+predict(arbol_estrato, pred, type='class')
+```
+
+```{r}
+# de FP-Growth
+# {maiz_c=[0,0.391),frijol_c=[0,0.0782),arroz_c=[0,0.0647),otros_usos=[22.8,31),frijol_p=[0,1.94),arroz_p=[0,1.52)} => {estrato=A}
+pred <- data.frame(frijol_p=c(1), 
+                   municipio=c(15), 
+                   #estrato=c('A'), 
+                   etapa=c(1), 
+                   maiz_c=c(0.3),
+                   frijol_c=c(0),
+                   arroz_c=c(1),
+                   otros_usos=c(25),
+                   maiz_p=c(1),
+                   departamento=c(17),
+                   arroz_p=c(1)
+                   )
+
+predict(arbol_estrato, pred, type='class')
+```
+
+```{r}
+# de FP-Growth
+# {frijol_c=[0,0.0782),arroz_c=[0,0.0647),otros_usos=[47.3,66.7),frijol_p=[0,1.94),arroz_p=[0,1.52)} => {estrato=C}
+pred <- data.frame(frijol_p=c(1), 
+                   municipio=c(15), 
+                   #estrato=c('A'), 
+                   etapa=c(1), 
+                   maiz_c=c(0.3),
+                   frijol_c=c(0),
+                   arroz_c=c(1),
+                   otros_usos=c(50),
+                   maiz_p=c(1),
+                   departamento=c(17),
+                   arroz_p=c(1)
+                   )
+
+predict(arbol_estrato, pred, type='class')
+```
+
+```{r}
+# arbol de produccion de arroz
+df_arr = data.frame(df)
+df_arr$arroz_p = discretize(df_frif$arroz_p, method='cluster', breaks=5)
+arbol_arr <- rpart( arroz_p~ 
                  municipio + 
-                 departamento + 
                  estrato + 
+                 etapa + 
                  maiz_c + 
                  frijol_c +
                  arroz_c + 
-                 etapa + 
+                 otros_usos + 
                  maiz_p + 
-                 frijol_p + 
-                 arroz_p,
+                 departamento +
+                 estrato +
+                 frijol_p,
           
-               data=df_otros, 
-               method='class')
+               data=df_arr, 
+               method='class') 
+
+# FP-Growth
+# {departamento=17,maiz_c=[0,0.391),frijol_c=[0,0.0782),arroz_c=[0,0.0647),maiz_p=[0,31.2),frijol_p=[0,1.94)} => {arroz_p=[0,1.52)}
+pred <- data.frame(frijol_p=c(1), 
+                   municipio=c(15), 
+                   estrato=c('A'), 
+                   etapa=c(1), 
+                   maiz_c=c(0.3),
+                   frijol_c=c(0),
+                   arroz_c=c(1),
+                   otros_usos=c(50),
+                   maiz_p=c(1),
+                   departamento=c(17)
+                   #arroz_p=c(1)
+                   )
+
+predict(arbol_arr, pred, type='class')
 ```
 
 ```{r}
-rpart.plot(arbol, 
-           type=2, 
-           extra=0, 
-           under=TRUE, 
-           fallen.leaves=TRUE, 
-           box.palette='BuGn', 
-           main='Prediccion de la etapa', 
-           cex=.45)
+# Predicción por medio de bosques aleatorios
 ```
 
 ```{r}
+# preparacion de la data, se elige cual va a ser la variable dependiente
+data = data.frame(df)
+data$estrato = as.factor(data$estrato)
+set.seed(10)
+data = data[sample(1: nrow(data)), ]
+
 
 ```
 
-![](images/clipboard-9133593.png)
+```{r}
+# se genera la division de entrenamiento y validacion
+indice = sample(1:nrow(data), .8*nrow(data))
+train = data[indice, ]
+test = data[-indice,]
+```
+
+```{r}
+# bosque aleatorio para el estrato
+bosque_estrato = randomForest(estrato ~ 
+                       municipio + 
+                       departamento + 
+                       etapa + 
+                       maiz_c + 
+                       frijol_c +
+                       arroz_c + 
+                       otros_usos + 
+                       maiz_p + 
+                       frijol_p + 
+                       arroz_p,
+                      
+                      data=train,
+                      ntree = 100,
+                      mtry = 5)
+```
+
+```{r}
+# bosque aleatorio para el estrato
+bosque_frijol_p = randomForest(frijol_p ~ 
+                       municipio + 
+                       departamento + 
+                       etapa + 
+                       maiz_c + 
+                       frijol_c +
+                       arroz_c + 
+                       otros_usos + 
+                       maiz_p + 
+                       estrato + 
+                       arroz_p,
+                      
+                      data=train,
+                      ntree = 100,
+                      mtry = 5)
+```
+
+```{r}
+# predicciones de bosque aleatorio
+pred <- data.frame(frijol_p=c(1), 
+                   municipio=c(15), 
+                   #estrato=c('A'), 
+                   etapa=c(1), 
+                   maiz_c=c(0.3),
+                   frijol_c=c(0),
+                   arroz_c=c(1),
+                   otros_usos=c(50),
+                   maiz_p=c(1),
+                   departamento=c(17),
+                   arroz_p=c(1)
+                   )
+
+predict(bosque, pred, type='class')
+```
