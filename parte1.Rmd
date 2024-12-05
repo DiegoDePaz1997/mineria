@@ -96,11 +96,11 @@ df$etapa <- as.numeric(df$etapa)
 
 ```{r}
 # filtrar los valores extremos
-df = df[df$maiz_c < 3*sd(df$maiz_c)
+df = df[df$maiz_c < (3*sd(df$maiz_c) + median(df$maiz_c))
    &
-   df$frijol_c < 3*sd(df$frijol_c)
+   df$frijol_c < (3*sd(df$frijol_c) + median(df$frijol_c))
    &
-   df$arroz_c < 3*sd(df$arroz_c),]
+   df$arroz_c < (3*sd(df$arroz_c) + median(df$arroz_c)),]
 
 df_kmeans = data.frame(df)
 ```
@@ -132,9 +132,13 @@ x[grepl("(?=departamento=17)", x$rules, perl=TRUE),]
 ```{r}
 # segundo algoritmo fpgrowth
 
-reglas <- fim4r(df, method='fpgrowth', target='rules', supp=.2, conf=.6)
+reglas <- fim4r(df, method='fpgrowth', target='rules', supp=.1, conf=.8)
 xy <- as(reglas, 'data.frame')
 xy
+```
+
+```{r}
+xy[grepl("(?==> {arroz_p)", xy$rules, perl=TRUE),]
 ```
 
 ```{r}

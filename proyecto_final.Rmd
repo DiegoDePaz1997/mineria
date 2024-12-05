@@ -122,15 +122,24 @@ arbol_frif <- rpart( frijol_p~
 ```
 
 ```{r}
-# predicción del departamento
+# predicción de rangos de frijol_p
 rpart.plot(arbol_frif, 
            type=2, 
            extra=0, 
            under=TRUE, 
            fallen.leaves=TRUE, 
            box.palette='BuGn', 
-           main='Prediccion del departamento', 
+           main='Prediccion de rangos de frijol_p', 
            cex=.45)
+
+'para este arbol lo unico importante para saber la cantidad de frijol producido el la cantidad
+de frijol cultivado.
+
+se esperaba que hubiera algo mas de peso en las variables, como puede ser el departamento, o 
+el tipo de superfice utilizada "estrato" [A, B, C, D] o incluso la etapa de cosechas relacionadas con las lluvias [etapa1, etapa2, etapa3]
+
+el arbol obtenido es muy simple, asigna un rango de produccion a cierto tamanio de cultivo, cada nodo un poco mayor que el anterior,
+lo mismo con los rangos'
 ```
 
 ```{r}
@@ -161,6 +170,43 @@ rpart.plot(arbol_estrato,
            box.palette='BuGn', 
            main='Prediccion del estrato', 
            cex=.45)
+
+
+'para este arbol las variables mas significativas son [otros_usos, departamento]
+
+Es mas complejo que el arbol de frijol_p, aunque como con el anterior, se esperaba que fusen 
+mas relevantes las demas caracteristicas de superficie y produccion
+
+estrato A:
+      se obtiene en dos puntos del arbol
+              el primero cuando la superficie usada por otros_usos esta entre [7.8, 26)
+              el segundo cuando la superficie usada por otros_usos es menor a 1.9 y el departamento es menor al 13
+estrato B:
+      solo existe una forma de llegar a B
+              la superficie usada por otros_usos tiene que estar entre [1.9, 7.8]
+
+estrato C:
+      solo existe una forma de llegar a C
+            la superficie usada por otros_usos tiene que estar entre (26, 58)
+estrato D:
+      existen dos formas de llegar a D
+            cuando la superficie usada por otros_usos es mayor a 58
+            cuando la superficie usada por otros_usos es menor a 1.9 y el departamento es mayor o igual al 13
+            
+            
+            
+            
+            
+situaciones
+      puede ser util para una empresa que vende feritizantes o una empresa que se dedique a habilitar espacios,
+      encontrar nuevos clientes en funcion de lo poco o mucho que usen las tierras para otros cultivos que no sean
+      el maiz, frijol o arroz, y dependiendo del departamento, enfocados a los estratos C y D.
+      
+      tambien puede ser interesante hacer algun tipo de campaña de mejora de conocimientos de ciembras enfocada a los productores 
+      con estratos de tipo C y D, que no aprovechan del todo las tierras
+
+
+'
 ```
 
 ```{r}
@@ -190,6 +236,13 @@ rpart.plot(arbol,
            box.palette='BuGn', 
            main='Prediccion de la etapa', 
            cex=.45)
+
+'para este arbol las variables mas significativas son [frijol_c, departamento]
+
+este no es un buen arbol, el uso de un departamento como forma de diferenciar una epoca del año es ilogica
+el area plantada vs la produccion deberia de ser un mejor indicio de la epoca (suposicion: en epocas muy lluviosas mayor produccion).
+Parece que el planteamiento anterior no tiene el suficiente peso como para que el arbol lo tubiera en cuenta.
+'
 ```
 
 ```{r}
@@ -352,7 +405,7 @@ bosque_estrato = randomForest(estrato ~
 ```
 
 ```{r}
-# bosque aleatorio para el estrato
+# bosque aleatorio para el frijol_p
 bosque_frijol_p = randomForest(frijol_p ~ 
                        municipio + 
                        departamento + 
@@ -371,19 +424,46 @@ bosque_frijol_p = randomForest(frijol_p ~
 ```
 
 ```{r}
-# predicciones de bosque aleatorio
+# predicciones de bosque aleatorio frijol_p
+# el arbol de decision con estos mismos parametros nos dio el rango: [0,25.7)
+# el valor predicho por el modelo entra en el intervalo
 pred <- data.frame(frijol_p=c(1), 
-                   municipio=c(15), 
-                   #estrato=c('A'), 
+                   municipio=c(5), 
+                   estrato=test[test$estrato == "A", ]$estrato[1], 
                    etapa=c(1), 
-                   maiz_c=c(0.3),
+                   maiz_c=c(0),
                    frijol_c=c(0),
                    arroz_c=c(1),
-                   otros_usos=c(50),
+                   otros_usos=c(1),
                    maiz_p=c(1),
                    departamento=c(17),
                    arroz_p=c(1)
                    )
 
-predict(bosque, pred, type='class')
+
+predict(bosque_frijol_p, pred, type='class')
+```
+
+```{r}
+# predicciones de bosque aleatorio estrato
+# el arbol de decision con estos mismos parametros nos dio: el estrato D
+# el modelo predijo el estrato D, que concuerda con el anterior arbol
+pred <- data.frame(frijol_p=c(1), 
+                   municipio=c(5), 
+                   estrato=test[test$estrato == "A", ]$estrato[1], 
+                   etapa=c(1), 
+                   maiz_c=c(0),
+                   frijol_c=c(0),
+                   arroz_c=c(1),
+                   otros_usos=c(100),
+                   maiz_p=c(1),
+                   departamento=c(17),
+                   arroz_p=c(1)
+                   )
+
+predict(bosque_estrato, pred, type='class')
+```
+
+```{r}
+
 ```
