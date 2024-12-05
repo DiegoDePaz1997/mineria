@@ -16,10 +16,12 @@ Se requiere la instalación de varias bibliotecas para el análisis y la minerí
 ### 2.2. Bibliotecas en R
 Instalar y cargar las siguientes bibliotecas en R:
 
-```r
-install.packages(c("arules", "Matrix", "readxl", "tibble", "ggplot2"))
-library(arules)
-library(Matrix)
-library(readxl)
-library(tibble)
-library(ggplot2)
+install.packages(c("caret", "arules", "Matrix", "readxl", "tibble", "rpart", "rpart.plot", "randomForest"))
+
+
+### 2.3. Bibliotecas en python
+generar un entorno virtual en la carpeta **python -m venv entorno**
+
+activar el entorno ** .\entorno\Scripts\activate** o ** activarlo en el editor de codigo **
+
+se instalan todas las librerias necesarias con ** pip install -r requirements.txt **

@@ -103,6 +103,39 @@ df$etapa <- as.numeric(df$etapa)
 
 ```{r}
 # arbol de prediccion de produccion de frijol
+df_maiz_c = data.frame(df)
+df_maiz_c$maiz_c = discretize(df_maiz_c$maiz_c, method='cluster', breaks=8)
+
+arbol_maiz_p <- rpart( maiz_c~ 
+                 municipio + 
+                 estrato + 
+                 etapa + 
+                 maiz_p + 
+                 frijol_c +
+                 arroz_c + 
+                 otros_usos + 
+                 frijol_p + 
+                 departamento + 
+                 arroz_p,
+          
+               data=df_frif, 
+               method='class')
+```
+
+```{r}
+# predicción de rangos de maiz_p
+rpart.plot(arbol_maiz_p, 
+           type=2, 
+           extra=0, 
+           under=TRUE, 
+           fallen.leaves=TRUE, 
+           box.palette='BuGn', 
+           main='Prediccion de rangos de maiz_p', 
+           cex=.45)
+```
+
+```{r}
+# arbol de prediccion de produccion de frijol
 df_frif = data.frame(df)
 df_frif$frijol_p = discretize(df_frif$frijol_p, method='cluster', breaks=5)
 arbol_frif <- rpart( frijol_p~ 
